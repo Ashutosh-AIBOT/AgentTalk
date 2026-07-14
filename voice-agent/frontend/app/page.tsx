@@ -4,7 +4,7 @@ import { useState } from "react";
 import VoiceStage from "@/components/VoiceStage";
 import Orb from "@/components/Orb";
 
-const TOKEN_SERVER_URL = process.env.NEXT_PUBLIC_TOKEN_SERVER_URL ?? "http://localhost:8000";
+const TOKEN_SERVER_URL = process.env.NEXT_PUBLIC_TOKEN_SERVER_URL ?? "";
 
 export default function Page() {
   const [session, setSession] = useState<{ token: string; url: string } | null>(null);
