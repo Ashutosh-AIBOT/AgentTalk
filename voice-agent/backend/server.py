@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from livekit import api
 from pydantic import BaseModel
 
-load_dotenv()
+load_dotenv(override=True)
 
 app = FastAPI(title="Voice Agent Token Server")
 

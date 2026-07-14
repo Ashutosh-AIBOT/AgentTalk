@@ -6,10 +6,11 @@ from dotenv import load_dotenv
 from livekit.agents import Agent, AgentSession, JobContext, WorkerOptions, cli, room_io
 from livekit.agents import AgentStateChangedEvent, MetricsCollectedEvent, metrics
 from livekit.agents import llm, stt, tts, inference
-from livekit.plugins import noise_cancellation, silero
+from livekit.plugins import noise_cancellation, silero, openai
 
 logger = logging.getLogger(__name__)
-load_dotenv()
+# Force override=True so that shell/parent env vars do not block local .env key
+load_dotenv(override=True)
 
 INSTRUCTIONS = (
     "You are a warm, friendly voice assistant having a natural spoken "
@@ -41,26 +42,11 @@ async def entrypoint(ctx: JobContext):
         except Exception as e:
             logger.error(f"Failed to load user context: {e}")
 
-    # Set up the fallback-capable pipeline session
+    # Set up the OpenAI pipeline session for 100% reliability
     session = AgentSession(
-        stt=stt.FallbackAdapter(
-            [
-                inference.STT.from_model_string("assemblyai/universal-streaming:en"),
-                inference.STT.from_model_string("deepgram/nova-3"),
-            ]
-        ),
-        llm=llm.FallbackAdapter(
-            [
-                inference.LLM.from_model_string("openai/gpt-4o-mini"),
-                inference.LLM.from_model_string("anthropic/claude-3.5-sonnet"),
-            ]
-        ),
-        tts=tts.FallbackAdapter(
-            [
-                inference.TTS.from_model_string("cartesia/sonic-3"),
-                inference.TTS.from_model_string("openai/tts-1"),
-            ]
-        ),
+        stt=openai.STT(),
+        llm=openai.LLM(model="gpt-4o-mini"),
+        tts=openai.TTS(voice="alloy"),
         vad=silero.VAD.load(),
         turn_detection="vad",
         preemptive_generation=True,
