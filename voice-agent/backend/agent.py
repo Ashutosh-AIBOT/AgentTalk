@@ -61,9 +61,14 @@ async def entrypoint(ctx: JobContext):
                 inference.TTS.from_model_string("openai/tts-1"),
             ]
         ),
-        vad=silero.VAD.load(),
+        vad=silero.VAD.load(
+            min_silence_duration=0.25,
+            prefix_padding_duration=0.2,
+        ),
         turn_detection="vad",
         preemptive_generation=True,
+        min_endpointing_delay=0.25,
+        max_endpointing_delay=0.6,
     )
 
     # Pre-populate session history with past context
